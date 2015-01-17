@@ -11,27 +11,44 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.migrate import Migrate, MigrateCommand
 from flask.ext.script import Shell
 
+# the os is used the get the current path later used to create my sqlite db
 basedir = os.path.abspath(os.path.dirname(__file__))
 
+# Flask app
 app = Flask(__name__)
+
+# the manager for scritps
 manager = Manager(app)
+
+# other librarys
 bootstrap = Bootstrap(app)
 moment = Moment(app)
 
-
+#for crsf security
 app.config['SECRET_KEY'] = 'quelque choose dificile a decouvrir'
+
+#database configuration
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
+#mail configuration
+app.config['MAIL_SERVER'] = 'smtp.googlemail.com'
+app.config['MAIL_PORT'] = 587
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USERNAME'] = os.environ.get('MAIL_USERNAME')
+app.config['MAIL_PASSWORD'] = os.environ.get('MAIL_PASSWORD')
+
+# start my db with SQLAlchemy with migrations
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 manager.add_command('db', MigrateCommand)
 
+# FORMS
 class NameForm(Form):
     name = StringField('What is your name?', validators=[Required()])
     submit = SubmitField('Submit')
 
-
+# MODELS
 class Role(db.Model):
     __tablename__ = 'roles'
     id = db.Column(db.Integer, primary_key=True)
@@ -52,6 +69,7 @@ class User(db.Model):
         return '<User %r>' % self.username
 
 
+# VIEWS
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
@@ -92,9 +110,13 @@ def user(name):
     return render_template('user.html', name=name)
 
 
+# Make Shell from manager works already importing those guys above
 def make_shell_context():
     return dict(app=app, db=db, User=User, Role=Role)
 manager.add_command("shell", Shell(make_context=make_shell_context))
 
+# runnning with the manager instead of app to accept params, like this it
+# doens't work with Pycharm, because i'm not sending the 'runserver' parameter,
+# PS, on configuration, it's possible to pass the required parameter
 if __name__ == '__main__':
     manager.run()
