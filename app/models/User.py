@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
     token = db.Column(db.String(200))
 
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
+    posts = db.relationship('Post', backref='author', lazy='dynamic')
 
     # methods used to set our hashed password, make it readonly and compare a given one
     @property
