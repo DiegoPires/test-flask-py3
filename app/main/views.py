@@ -3,12 +3,13 @@ from flask import render_template, session, redirect, url_for, current_app, flas
 from .. import db
 from flask.ext.login import login_required, current_user
 from app.decorators import admin_required, permission_required
+from app.models.Post import Post
 from ..models.Permission import Permission
 from ..models.User import User
 from ..models.Role import Role
 from ..email import send_email
 from . import main
-from .forms import NameForm, EditProfileForm, EditProfileAdminForm
+from .forms import NameForm, EditProfileForm, EditProfileAdminForm, PostForm
 from datetime import datetime
 
 
@@ -50,7 +51,8 @@ def user(username):
     user = User.query.filter_by(username=username).first()
     if user is None:
         abort(404)
-    return render_template('user.html', user=user)
+    posts = user.posts.order_by(Post.timestamp.desc()).all()
+    return render_template('user.html', user=user, posts=posts)
 
 
 @main.route('/edit-profile', methods=['GET', 'POST'])
@@ -109,3 +111,26 @@ def for_admins_only():
 @permission_required(Permission.MODERATE_COMMENTS)
 def for_moderators_only():
     return "For comment moderators!"
+
+
+@main.route('/posts', methods=['GET', 'POST'])
+def posts():
+    form = PostForm()
+    if current_user.can(Permission.WRITE_ARTICLES) and form.validate_on_submit():
+        post = Post(body=form.body.data, author=current_user._get_current_object())
+        db.session.add(post)
+        return redirect(url_for('.posts'))
+    posts = Post.query.order_by(Post.timestamp.desc()).all()
+    return render_template('posts.html', form=form, posts=posts,
+                           writepermission=Permission.WRITE_ARTICLES)
+
+
+@main.route('/edit', methods=['GET', 'POST'])
+def edit():
+    pass
+
+
+@main.route('/post', methods=['GET', 'POST'])
+def post():
+    pass
+

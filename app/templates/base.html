@@ -22,6 +22,7 @@
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li><a href="/">Home</a></li>
+                    <li><a href="{{ url_for('main.posts') }}">Posts</a></li>
                     <li><a href="{{ url_for('main.usertosco', name='Diego', _external=False) }}">User Tosco</a></li>
                     {% if current_user.is_authenticated() %}
                         <li>
