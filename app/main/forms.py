@@ -1,7 +1,8 @@
 from flask.ext.wtf import Form
 from wtforms import StringField, SubmitField, TextAreaField, BooleanField, SelectField
 from wtforms.validators import Required, Length, Regexp, Email
-from app.models import User, Role
+from app.models.User import User
+from app.models.Role import Role
 from wtforms import ValidationError
 
 class NameForm(Form):

@@ -1,7 +1,8 @@
 from functools import wraps
 from flask import abort
 from flask.ext.login import current_user
-from app.models import Permission
+
+from app.models.Permission import Permission
 
 # A decorator is the things we can put on top of methods... for example, these guys above
 # can be used as:
@@ -10,6 +11,8 @@ from app.models import Permission
 
 # decorator created to be used when a view is called, but needs to verify if he has permission
 # to see the entire view
+
+
 def permission_required(permission):
     def decorator(f):
         @wraps(f)

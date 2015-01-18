@@ -3,7 +3,9 @@ from flask import render_template, session, redirect, url_for, current_app, flas
 from .. import db
 from flask.ext.login import login_required, current_user
 from app.decorators import admin_required, permission_required
-from ..models import User, Permission, Role
+from ..models.Permission import Permission
+from ..models.User import User
+from ..models.Role import Role
 from ..email import send_email
 from . import main
 from .forms import NameForm, EditProfileForm, EditProfileAdminForm
