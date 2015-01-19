@@ -6,9 +6,10 @@ from flask.ext.login import UserMixin
 from .. import login_manager
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from datetime import datetime
+from app.models.Follow import Follow
 from app.models.Permission import Permission
 from app.models.Role import Role
-
+from app.models.Post import Post
 
 # Herdando o UserMixin, uma classe do flask-login que ja implementa os métodos:
 # >> is_authenticated(), is_active(), is_anonymous(), get_id()
@@ -31,6 +32,17 @@ class User(UserMixin, db.Model):
 
     role_id = db.Column(db.Integer, db.ForeignKey('roles.id'))
     posts = db.relationship('Post', backref='author', lazy='dynamic')
+
+    followed = db.relationship('Follow',
+                               foreign_keys=[Follow.follower_id],
+                               backref=db.backref('follower', lazy='joined'),
+                               lazy='dynamic',
+                               cascade='all, delete-orphan')
+    followers = db.relationship('Follow',
+                                foreign_keys=[Follow.followed_id],
+                                backref=db.backref('followed', lazy='joined'),
+                                lazy='dynamic',
+                                cascade='all, delete-orphan')
 
     # methods used to set our hashed password, make it readonly and compare a given one
     @property
@@ -110,3 +122,24 @@ class User(UserMixin, db.Model):
                 db.session.commit()
             except IntegrityError:
                 db.session.rollback()
+
+    def follow(self, user):
+        if not self.is_following(user):
+            f = Follow(follower=self, followed=user)
+            db.session.add(f)
+
+    def unfollow(self, user):
+        f = self.followed.filter_by(followed_id=user.id).first()
+        if f:
+            db.session.delete(f)
+
+    def is_following(self, user):
+        return self.followed.filter_by(followed_id=user.id).first() is not None
+
+    def is_followed_by(self, user):
+        return self.followers.filter_by(follower_id=user.id).first() is not None
+
+    @property
+    def followed_posts(self):
+        return Post.query.join(Follow, Follow.followed_id == Post.author_id)\
+            .filter(Follow.follower_id == self.id)

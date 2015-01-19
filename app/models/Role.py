@@ -1,5 +1,5 @@
 from app import db
-from app.models.Permission import Permission
+import app.models.Permission
 
 
 class Role(db.Model):

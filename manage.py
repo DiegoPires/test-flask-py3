@@ -1,6 +1,6 @@
 import os
 from app import create_app, db
-from app.models.User import User
+from app.models.Users import User
 from app.models.Role import Role
 from app.models.Post import Post
 from app.models.Permission import Permission

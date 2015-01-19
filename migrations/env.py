@@ -15,7 +15,7 @@ fileConfig(config.config_file_name)
 # for 'autogenerate' support
 from app.models.Post import Post
 from app.models.Role import Role
-from app.models.User import User
+from app.models.Users import User
 
 #target_metadata = post.Base.metadata
 from flask import current_app
