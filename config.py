@@ -31,15 +31,19 @@ class Config:
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data-dev.sqlite')
+    MONGODB_SETTINGS = {'DB': "selfspy_db_dev"}
 
 
 class TestingConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data-test.sqlite')
+    MONGODB_SETTINGS = {'DB': "selfspy_db_test"}
 
 
 class ProductionConfig(Config):
     SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'data.sqlite')
+    MONGODB_SETTINGS = {'DB': "selfspy_db"}
+
 
 
 config = {
